@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<title>three.js webgl - multiple elements</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+    <link rel=stylesheet href="css/style.css"/>
+</head>
+
+<script>
+var ws = new WebSocket("ws://localhost:8084/test/");
+</script>
+
+<body>
+	<canvas id="c"> </canvas>
+
+		<div id="content">
+			<button onclick="sendToServer('start')">Start</button>
+			<button onclick="sendToServer('stop')">Stop!</button><br/><br/>
+			<textarea id="log" rows="50" cols="10"></textarea>
+			<div id="info">visualizing motion sensor data in <a href="http://threejs.org" target="_blank">three.js</a> - by cam lunt & ryan reede </div>
+		</div>
+
+	<script src="js/Three.js"></script>
+	<script src="js/OrbitControls.js"></script>
+	<script src="js/Detector.js"></script>
+
+	<script src="js/renderer.js"> </script>
+	<script src="js/begin.js"> </script>
+	<script src="js/init.js"> </script>
+
+	<script id="template" type="notjs">
+		<div class="scene"></div>
+		<div class="description">$</div>
+	</script>
+
+<script>
+
+	if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
+	var canvas;
+	var scenes = [], renderer;
+	renderer = new THREE.WebGLRenderer( { canvas: canvas, antialias: true } );
+	init();
+	animate();
+
+</script>
+</body>
+</html>
