@@ -1,9 +1,4 @@
-**Realtime Visualization of Streaming Sensor Data**
+**Android streaming side**
 ==============
 
-- Data generated from a Project Tango device
-- Then sent to the server via the PubNub Android API
-- Processed with Scala/Python in Apache Spark
-- Visualized in a web browser over D3.js
-
-By Cam Lunt and Ryan Reede
+- To be run on a project tango device to stream sensor data to the server side application
