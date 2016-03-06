@@ -31,10 +31,17 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Random;
 
 /**
  * Main Activity for the Tango Java Quickstart. Demonstrates establishing a
@@ -68,6 +75,14 @@ public class MainActivity extends Activity {
         mTranslationTextView = (TextView) findViewById(R.id.translation_text_view);
         mRotationTextView = (TextView) findViewById(R.id.rotation_text_view);
 
+//        startActivityForResult(
+//                Tango.getRequestPermissionIntent(Tango.PERMISSIONTYPE_MOTION_TRACKING),
+//                Tango.TANGO_INTENT_ACTIVITYCODE);
+
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data){
         // Instantiate Tango client
         mTango = new Tango(this);
 
@@ -86,7 +101,7 @@ public class MainActivity extends Activity {
         // the app
         // is brought to the foreground.
         super.onResume();
-        if (!mIsTangoServiceConnected) {
+        if (!mIsTangoServiceConnected && mTango != null) {
             try {
                 setTangoListeners();
             } catch (TangoErrorException e) {
@@ -120,6 +135,9 @@ public class MainActivity extends Activity {
         } catch (TangoErrorException e) {
             Toast.makeText(getApplicationContext(), "Tango Error!",
                     Toast.LENGTH_SHORT).show();
+        }
+        catch (NullPointerException e){
+
         }
     }
 
@@ -196,4 +214,25 @@ public class MainActivity extends Activity {
         });
     }
 
+    public void startSending(View view) {
+        final String ip = ((EditText) findViewById(R.id.server_input)).getText().toString();
+        final int port = Integer.parseInt(((EditText) findViewById(R.id.port_input)).getText().toString());
+        Log.d("TANGOSTREAM", ip+":"+port);
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Socket socket = new Socket(ip, port);
+                    DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+                    while (true){
+                        out.writeInt((int)(Math.random()*100));
+                        Log.d("TANGOSTREAM", "send");
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
 }
