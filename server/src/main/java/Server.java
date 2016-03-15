@@ -25,19 +25,18 @@ public class Server{
 				"Listening on: " + 
 				serverSocket.getInetAddress().getLocalHost().getHostAddress()+
 				":"+5000);
-		Socket server = serverSocket.accept();
-		
-		DataInputStream in = new DataInputStream(server.getInputStream());
+		System.out.println("Awaiting connection");
+		Socket server = serverSocket.accept();		
+		System.out.println("Connection accepted");
 
+		BufferedReader in = new BufferedReader(new InputStreamReader(server.getInputStream()));
 		while(true){
-			try{
-				String msg = "received: " + in.readInt();
+				System.out.println("reading messages");
+				String msg = in.readLine();
+				System.out.println(msg);
 				KeyedMessage<String, String> data = 
 					            		   new KeyedMessage<String, String>("data", "localhost", msg);
 				producer.send(data);
-			}
-			catch(EOFException e){
-			}
 		}	
 		//serverSocket.close();
 		//server.close();

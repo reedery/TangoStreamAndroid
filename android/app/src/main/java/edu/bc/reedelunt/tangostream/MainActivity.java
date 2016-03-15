@@ -30,6 +30,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -38,6 +39,8 @@ import android.widget.Toast;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Date;
@@ -66,6 +69,7 @@ public class MainActivity extends Activity {
     private Tango mTango;
     private TangoConfig mConfig;
     private boolean mIsTangoServiceConnected;
+    private boolean sending = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,14 +79,25 @@ public class MainActivity extends Activity {
         mTranslationTextView = (TextView) findViewById(R.id.translation_text_view);
         mRotationTextView = (TextView) findViewById(R.id.rotation_text_view);
 
-//        startActivityForResult(
-//                Tango.getRequestPermissionIntent(Tango.PERMISSIONTYPE_MOTION_TRACKING),
-//                Tango.TANGO_INTENT_ACTIVITYCODE);
+        startActivityForResult(
+                Tango.getRequestPermissionIntent(Tango.PERMISSIONTYPE_MOTION_TRACKING),
+                Tango.TANGO_INTENT_ACTIVITYCODE);
+
+        try{
+            startupTango();
+        }catch (Exception e){
+            //getting permissions now?
+        }
 
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data){
+        startupTango();
+
+    }
+
+    private void startupTango() {
         // Instantiate Tango client
         mTango = new Tango(this);
 
@@ -91,7 +106,6 @@ public class MainActivity extends Activity {
         // like: mConfig.putBoolean(TangoConfig.KEY_BOOLEAN_DEPTH, true)
         mConfig = mTango.getConfig(TangoConfig.CONFIG_TYPE_CURRENT);
         mConfig.putBoolean(TangoConfig.KEY_BOOLEAN_MOTIONTRACKING, true);
-
     }
 
     @Override
@@ -159,6 +173,10 @@ public class MainActivity extends Activity {
             @SuppressLint("DefaultLocale")
             @Override
             public void onPoseAvailable(TangoPoseData pose) {
+                if(sending){
+                    sendPose(pose);
+                }
+
                 // Format Translation and Rotation data
                 final String translationMsg = String.format(sTranslationFormat,
                         pose.translation[0], pose.translation[1],
@@ -167,9 +185,9 @@ public class MainActivity extends Activity {
                         pose.rotation[0], pose.rotation[1], pose.rotation[2],
                         pose.rotation[3]);
 
-                // Output to LogCat
-                String logMsg = translationMsg + " | " + rotationMsg;
-                Log.i(TAG, logMsg);
+//                // Output to LogCat
+//                String logMsg = translationMsg + " | " + rotationMsg;
+//                Log.i(TAG, logMsg);
 
                 final double deltaTime = (pose.timestamp - mPreviousTimeStamp)
                         * SECS_TO_MILLISECS;
@@ -214,20 +232,51 @@ public class MainActivity extends Activity {
         });
     }
 
-    public void startSending(View view) {
+    private void sendPose(final TangoPoseData pose) {
         final String ip = ((EditText) findViewById(R.id.server_input)).getText().toString();
         final int port = Integer.parseInt(((EditText) findViewById(R.id.port_input)).getText().toString());
-        Log.d("TANGOSTREAM", ip+":"+port);
 
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
+                    Log.d("TANGOSTREAM", "send");
+
+
                     Socket socket = new Socket(ip, port);
-                    DataOutputStream out = new DataOutputStream(socket.getOutputStream());
-                    while (true){
-                        out.writeInt((int)(Math.random()*100));
+
+                    PrintWriter out = new PrintWriter(socket.getOutputStream());
+
+                    out.println(pose.rotation[0] + " " + pose.rotation[1] + " " + pose.rotation[2]);
+                    String x = null;
+                    x.length();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
+    public void startSending(View view) {
+        sending = true;
+        Log.d("TANGOSTREAM", "sending start");
+        final String ip = ((EditText) findViewById(R.id.server_input)).getText().toString();
+        final int port = Integer.parseInt(((EditText) findViewById(R.id.port_input)).getText().toString());
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Log.d("TANGOSTREAM", "send");
+
+
+                    Socket socket = new Socket(ip, port);
+
+                    PrintWriter out = new PrintWriter(socket.getOutputStream());
+
+                    while(true) {
                         Log.d("TANGOSTREAM", "send");
+                        out.println(System.currentTimeMillis() + "time");
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
