@@ -44,6 +44,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Random;
 
 /**
@@ -247,7 +248,7 @@ public class MainActivity extends Activity {
 
                     PrintWriter out = new PrintWriter(socket.getOutputStream());
 
-                    out.println(pose.rotation[0] + " " + pose.rotation[1] + " " + pose.rotation[2]);
+                    out.println(messageFormat(pose));
                     String x = null;
                     x.length();
                 } catch (IOException e) {
@@ -255,6 +256,21 @@ public class MainActivity extends Activity {
                 }
             }
         }).start();
+    }
+
+    private String messageFormat(TangoPoseData pose) {
+        return String.format(Locale.US,
+                "%f %f %f " +
+                "%f %f %f %f",
+                pose.translation[0],
+                pose.translation[1],
+                pose.translation[2],
+
+                pose.rotation[0],
+                pose.rotation[1],
+                pose.rotation[2],
+                pose.rotation[3]
+        );
     }
 
     public void startSending(View view) {

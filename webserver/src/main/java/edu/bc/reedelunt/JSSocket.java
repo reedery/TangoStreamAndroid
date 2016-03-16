@@ -1,70 +1,71 @@
-package org.eclipse.jetty.js_sockets;
-
-import java.io.IOException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+package edu.bc.reedelunt;
 
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.WebSocketAdapter;
 
+import java.io.IOException;
+
 public class JSSocket extends WebSocketAdapter {
     
-	private ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-	private Session sessy;
-	
+	private Session session;
+
+    String zooKeeper = "localhost:2181";
+    String groupId = "test-consumer-group";
+    String topic = "data";
+    int threads = 1;
+
+    SimpleConsumer example = new SimpleConsumer(zooKeeper, groupId, topic);
+
     @Override
-    public void onWebSocketConnect(Session sess)
-    {
-    	this.sessy = sess;
-        super.onWebSocketConnect(sess);
-        System.out.println("Socket Connected: " + sess);
+    public void onWebSocketConnect(Session connectedSession){
+    	this.session = connectedSession;
+        super.onWebSocketConnect(connectedSession);
+        System.out.println("Socket Connected: " + connectedSession);
     }
     
     @Override
-    public void onWebSocketText(String message)
-    {
+    public void onWebSocketText(String message){
         super.onWebSocketText(message);
         System.out.println("Received TEXT message: " + message);
 
         switch (message) {
         case "start":
             send("STARTED");
-            executor.scheduleAtFixedRate(() -> send(NumService.getNums()), 30, 5, TimeUnit.MILLISECONDS);
+
+            example.run(threads, session);
+
             break;
         case "stop":
         	 send("STOPPED!");
         	 try {
-				sessy.disconnect();
+				session.disconnect();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
             break;
         }
     }
-    
-    
+
+
     private void send(String message) {
         try {
-            if (sessy.isOpen()) {
-                sessy.getRemote().sendString(message);
+            if (session.isOpen()) {
+                session.getRemote().sendString(message);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-    
+
     
     @Override
-    public void onWebSocketClose(int statusCode, String reason)
-    {
+    public void onWebSocketClose(int statusCode, String reason){
         super.onWebSocketClose(statusCode,reason);
         System.out.println("Socket Closed: [" + statusCode + "] " + reason);
     }
     
     @Override
-    public void onWebSocketError(Throwable cause)
-    {
+    public void onWebSocketError(Throwable cause){
         super.onWebSocketError(cause);
         cause.printStackTrace(System.err);
     }

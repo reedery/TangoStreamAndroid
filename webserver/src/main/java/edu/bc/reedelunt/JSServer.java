@@ -1,4 +1,4 @@
-package org.eclipse.jetty.js_sockets;
+package edu.bc.reedelunt;
 
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;

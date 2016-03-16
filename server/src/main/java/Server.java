@@ -12,7 +12,7 @@ public class Server{
 		Properties props = new Properties();
 		props.put("metadata.broker.list", "localhost:9092");
 		props.put("serializer.class", "kafka.serializer.StringEncoder");
-	  props.put("producer.type", "sync");
+	  	props.put("producer.type", "sync");
 		props.put("retry.backoff.ms", "1000");
 
 		props.put("request.required.acks", "1");
