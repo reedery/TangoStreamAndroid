@@ -4,13 +4,7 @@ By <a href= "https://github.com/cam9">Cam Lunt</a> and <a href= "https://github.
 
 **Goal**
 
-To illustrate what goes on behind the scenes of Virtual and Augmented Reality applications. To do so, there are two javascript visualizations present:
-
-
-
-- The **first** represents an arrow vector in 3D worldspace that originates at the origin (0,0,0) and terminates at a variable location determined by how much translational movement is invoked on the device. Pushing the tablet forward quickly will produce a long arrow moving into negative z space. Likewise, pulling the tablet towards the user with a significant amount of force will draw the arrow into positive z space. As the tablet deaccelerates, the arrow sizes down back towards the origin. In Augmented Reality applications, to render an image on top of the real world at a specific, fixed location, compensating for the lateral motion visualized here in realtime is key. 
-- The **second** visualization renders a sphere designed to represent a 3D envorironment in an application. A Hemisphere Light will render a portion of the sphere orange based upon the orientation of the tablet. If the tablet is facing up, the top of the sphere will be lit orange while the rest is blue. As the tablet is rotated and placed face-down, the orange highlighted portion of the sphere moves towards the bottom of the sphere. This visualization is intended to represent how VR and AR applications determine what subset of pixels in a 3D environment are to be rendered by the GPU and fed to the display. Rendering the entire environment is a significant waste of computing power as only a fraction of the 3D world will ever be in the field of view of the user at a given instant. The falloff of the orange portion of the sphere as it blends in with the blue represents how graphics processing algorithms prioritze certain pixels. Pixels at the edge of or just outisde of the field of view are rendered at a lower quality to prepare for the possibility that the user moves their head into that position. VR and AR applications must be able to maintain around 75Hz of refresh speed to prevent motion sickness and mimic reality, so prioritizing and managing computing resources becames extremely important.  
-
+To illustrate what goes on behind the scenes of Virtual and Augmented Reality applications. To do so, a Javascript visualization shows linear tranformations (quaternions) taking place in realtime so as to show what portion of a 3D environment a GPU will render (and at what quality) so that a user in VR can look and shift their viewpoint at any given point and still have frames prepared for them at over 75hz.
 
 **Process**
 
